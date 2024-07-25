@@ -2,8 +2,8 @@
 import { saveJob, getJob, getAllJobs, updateJob } from '@/lib/db';
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Dataset } from './types';
-import { Job } from '../Job/types';
+import { Dataset } from '../types';
+import { Job } from '../../Job/types';
 
 export default function DatasetDetail({ dataset }: { dataset: Dataset }) {
     const [jobs, setJobs] = useState<Job[]>([]);

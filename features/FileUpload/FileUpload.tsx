@@ -1,7 +1,6 @@
-'use client'
 import { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { saveDataset } from '../../lib/db';
+import { saveDataset } from "@/lib/db";
 
 interface FileUploadProps {
     onUploadComplete: () => void;
@@ -63,7 +62,7 @@ export default function FileUpload({ onUploadComplete }: FileUploadProps) {
             onDragEnter={(event)=>{event.stopPropagation();event.preventDefault();}}
             onDragLeave={(event)=>{event.stopPropagation();event.preventDefault();}}
             >
-                <span className='pt-4 mx-auto font-semibold'>Drag and drop your file or browse</span>
+                <span className='pt-4 mx-auto font-semibold'>Drag and drop your file or click browse</span>
                 <input
                     type="file"
                     onChange={handleFileChange}
