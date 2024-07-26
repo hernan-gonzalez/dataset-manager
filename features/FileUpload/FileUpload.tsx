@@ -10,12 +10,24 @@ export default function FileUpload({ onUploadComplete }: FileUploadProps) {
     const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+    const [isDraggingFile, setIsDraggingFile] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             setFile(e.target.files[0]);
         }
     };
+
+    const generateDatasetName = () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        const milliseconds = now.getMilliseconds().toString().padStart(3, '0'); // Pad to 3 digits
+
+        return `dataset-${year}${month}${day}${seconds}${milliseconds}`;
+    }
 
     const handleUpload = async () => {
         if (!file) return;
@@ -24,8 +36,9 @@ export default function FileUpload({ onUploadComplete }: FileUploadProps) {
         const datasetId = uuidv4();
         const dataset = {
             id: datasetId,
-            fileName: file.name,
+            name: generateDatasetName(),
             createdAt: new Date().toISOString(),
+            fileName: file.name,
             file: file
         };
 
@@ -42,27 +55,27 @@ export default function FileUpload({ onUploadComplete }: FileUploadProps) {
 
     return (
         <div className="mt-4">
-            <div className='flex flex-col h-32 w-full gap-y-4 align-center items-center bg-neutral border-dashed rounded border-gray-100 border-2'
-            onDrop={(event)=>{
-                event.stopPropagation();
-                event.preventDefault();
-                const dt = event.dataTransfer;
-                const files = dt.files;
-                if (files.length>0){
-                    setFile(files[0])
-                    if(inputRef.current){
-                        const singleFileDt = new DataTransfer();
-                        singleFileDt.items.add(files[0])
-                        inputRef.current.files = singleFileDt.files
+            <div className={`flex flex-col h-32 w-full gap-y-4 align-center items-center bg-neutral border-dashed rounded border-gray-100 border-2 ${isDraggingFile ? 'opacity-30' : ''}`}
+                onDrop={(event) => {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    const dt = event.dataTransfer;
+                    const files = dt.files;
+                    if (files.length > 0 && files[0].type === 'text/csv') {
+                        setFile(files[0])
+                        if (inputRef.current) {
+                            const singleFileDt = new DataTransfer();
+                            singleFileDt.items.add(files[0])
+                            inputRef.current.files = singleFileDt.files
+                        }
                     }
-                }
-
-            }}
-            onDragOver={(event)=>{event.stopPropagation();event.preventDefault();}}
-            onDragEnter={(event)=>{event.stopPropagation();event.preventDefault();}}
-            onDragLeave={(event)=>{event.stopPropagation();event.preventDefault();}}
+                    setIsDraggingFile(false)
+                }}
+                onDragOver={(event) => { event.stopPropagation(); event.preventDefault(); setIsDraggingFile(true) }}
+                onDragEnter={(event) => { event.stopPropagation(); event.preventDefault(); setIsDraggingFile(true) }}
+                onDragLeave={(event) => { event.stopPropagation(); event.preventDefault(); setIsDraggingFile(false) }}
             >
-                <span className='pt-4 mx-auto font-semibold'>Drag and drop your file or click browse</span>
+                <span className='pt-4 mx-auto font-semibold'>Drag and drop your csv file or click browse</span>
                 <input
                     type="file"
                     onChange={handleFileChange}
@@ -73,8 +86,8 @@ export default function FileUpload({ onUploadComplete }: FileUploadProps) {
                             file:bg-blue-50 file:text-blue-700
                             hover:file:bg-blue-500 hover:file:text-white
                             hover:file:cursor-pointer"
-                            accept='.csv'
-                            ref={inputRef}
+                    accept='.csv'
+                    ref={inputRef}
                 />
             </div>
 
@@ -83,7 +96,7 @@ export default function FileUpload({ onUploadComplete }: FileUploadProps) {
                 disabled={!file || uploading}
                 className="mt-2 w-full px-4 py-2 bg-blue-500 text-white rounded-md disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-600 transition duration-300"
             >
-                {uploading ? 'Uploading...' : 'Upload'}
+                {uploading ? 'Creating Dataset...' : 'Create Dataset'}
             </button>
         </div>
     );

@@ -4,4 +4,5 @@ export interface Job {
     status: string;
     createdAt: string;
     result?: any;
+    file?: Blob
 }
