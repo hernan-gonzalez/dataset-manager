@@ -32,7 +32,7 @@ export default function Home() {
             <h2 className="text-2xl font-semibold mb-4">Datasets</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {datasets.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                .map((dataset: Dataset) => <DataSetListItem dataset={dataset} />)}
+                .map((dataset: Dataset) => <DataSetListItem key={dataset.id} dataset={dataset} />)}
             </div>
             {datasets.length === 0 && (
               <p className="text-center text-gray-500">No datasets available. Upload a file to get started.</p>

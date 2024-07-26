@@ -127,7 +127,7 @@ export default function DatasetDetail({ dataset }: { dataset: Dataset }) {
             <div>
                 <h3 className="text-xl font-semibold mt-6">Jobs:</h3>
                 {jobs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                    .map(job => <JobDetail job={job} />)}
+                    .map(job => <JobDetail key={job.id} job={job} />)}
                 {jobs.length === 0 && (
                     <p className="text-center text-gray-500">No jobs have been started.</p>
                 )}
