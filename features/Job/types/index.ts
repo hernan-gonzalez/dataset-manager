@@ -6,3 +6,8 @@ export interface Job {
     result?: any;
     file?: Blob
 }
+
+export enum JobStatus {
+    PROCESSING = "PROCESSING",
+    COMPLETED = "COMPLETED"
+}

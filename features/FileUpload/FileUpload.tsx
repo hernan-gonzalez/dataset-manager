@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, DragEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { saveDataset } from "@/lib/db";
 
@@ -24,7 +24,7 @@ export default function FileUpload({ onUploadComplete }: FileUploadProps) {
         const month = (now.getMonth() + 1).toString().padStart(2, '0');
         const day = now.getDate().toString().padStart(2, '0');
         const seconds = now.getSeconds().toString().padStart(2, '0');
-        const milliseconds = now.getMilliseconds().toString().padStart(3, '0'); // Pad to 3 digits
+        const milliseconds = now.getMilliseconds().toString().padStart(3, '0');
 
         return `dataset-${year}${month}${day}${seconds}${milliseconds}`;
     }
@@ -53,27 +53,45 @@ export default function FileUpload({ onUploadComplete }: FileUploadProps) {
         }
     };
 
+    const handleFileDrop = (event: DragEvent<HTMLDivElement>) => {
+        event.stopPropagation();
+        event.preventDefault();
+        const dt = event.dataTransfer;
+        const files = dt.files;
+        if (files.length > 0 && files[0].type === 'text/csv') {
+            setFile(files[0])
+            if (inputRef.current) {
+                const singleFileDt = new DataTransfer();
+                singleFileDt.items.add(files[0])
+                inputRef.current.files = singleFileDt.files
+            }
+        }
+        setIsDraggingFile(false)
+    }
+
+    const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+        event.stopPropagation();
+        event.preventDefault();
+        setIsDraggingFile(true)
+    }
+    const handleDragEnter = (event: DragEvent<HTMLDivElement>) => {
+        event.stopPropagation();
+        event.preventDefault();
+        setIsDraggingFile(true)
+    }
+    const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
+        event.stopPropagation();
+        event.preventDefault();
+        setIsDraggingFile(false)
+    }
+
     return (
         <div className="mt-4">
             <div className={`flex flex-col h-32 w-full gap-y-4 align-center items-center bg-neutral border-dashed rounded border-gray-100 border-2 ${isDraggingFile ? 'opacity-30' : ''}`}
-                onDrop={(event) => {
-                    event.stopPropagation();
-                    event.preventDefault();
-                    const dt = event.dataTransfer;
-                    const files = dt.files;
-                    if (files.length > 0 && files[0].type === 'text/csv') {
-                        setFile(files[0])
-                        if (inputRef.current) {
-                            const singleFileDt = new DataTransfer();
-                            singleFileDt.items.add(files[0])
-                            inputRef.current.files = singleFileDt.files
-                        }
-                    }
-                    setIsDraggingFile(false)
-                }}
-                onDragOver={(event) => { event.stopPropagation(); event.preventDefault(); setIsDraggingFile(true) }}
-                onDragEnter={(event) => { event.stopPropagation(); event.preventDefault(); setIsDraggingFile(true) }}
-                onDragLeave={(event) => { event.stopPropagation(); event.preventDefault(); setIsDraggingFile(false) }}
+                onDrop={handleFileDrop}
+                onDragOver={handleDragOver}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
             >
                 <span className='pt-4 mx-auto font-semibold'>Drag and drop your csv file or click browse</span>
                 <input
