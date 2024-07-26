@@ -45,6 +45,8 @@ export default function FileUpload({ onUploadComplete }: FileUploadProps) {
         try {
             await saveDataset(dataset);
             setFile(null);
+            if (inputRef.current)
+                inputRef.current.files = new DataTransfer().files;
             onUploadComplete();
         } catch (error) {
             console.error('Error uploading file:', error);
